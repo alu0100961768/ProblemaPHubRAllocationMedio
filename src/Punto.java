@@ -65,4 +65,8 @@ public class Punto {
 		float distancia= (float)Math.sqrt(qx+qy);						   //Hipotenusa= Distancia				      		  P1--|  
 		return distancia;												   //										         (eje x)
 	}
+	
+	public void volverNucleo(boolean esHub) {
+		setEsNucleo(esHub);
+	}
 }
