@@ -1,5 +1,8 @@
 import java.util.Vector;
 
+/** Algoritmo multiarranque para solucionar el Problema PHubs RAllocators.
+ * @author Germán Alfonso Teixidó - alu0100961768
+ */
 public class Multiarranque {
 
 	public static ProblemaPHubRAllocationMedio problemaOriginal;
@@ -13,7 +16,7 @@ public class Multiarranque {
 	
 	public static void resolverInstanciaMultiarranque() {
 		Vector<Punto> puntosActuales= new Vector<Punto>();
-		puntosActuales= problemaOriginal.deepCopy(problemaOriginal.getPuntos());	
+		puntosActuales= problemaOriginal.deepCopyVPuntos(problemaOriginal.getPuntos());	
 		
 		ProblemaPHubRAllocationMedio solucionOptima= new ProblemaPHubRAllocationMedio(puntosActuales, new Vector<Integer>(), problemaOriginal.getrDistribuciones(), problemaOriginal.getpNucleos(), problemaOriginal.getnPuntos());
 		solucionOptima.resolverInstanciaGrasp();
@@ -25,7 +28,7 @@ public class Multiarranque {
 		while(!condicionDeParada) {
 			
 			Vector<Punto> puntosActual= new Vector<Punto>();
-			puntosActual= problemaOriginal.deepCopy(problemaOriginal.getPuntos());	
+			puntosActual= problemaOriginal.deepCopyVPuntos(problemaOriginal.getPuntos());	
 			
 			ProblemaPHubRAllocationMedio solucionActual= new ProblemaPHubRAllocationMedio(puntosActual, new Vector<Integer>(), problemaOriginal.getrDistribuciones(), problemaOriginal.getpNucleos(), problemaOriginal.getnPuntos());
 			solucionActual.resolverInstanciaGrasp();

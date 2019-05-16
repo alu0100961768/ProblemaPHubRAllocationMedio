@@ -251,7 +251,7 @@ public class ProblemaPHubRAllocationMedio {
 			if(!getPuntos().get(i).isEsNucleo()) {								// Que no sea ya un nucleo
 				
 				Vector<Punto> puntosActuales= new Vector<Punto>();
-				puntosActuales= deepCopy(getPuntos());
+				puntosActuales= deepCopyVPuntos(getPuntos());
 				
 				Vector<Integer> nucleosActuales= new Vector<Integer>();
 				nucleosActuales= deepCopy2(getNucleos());
@@ -280,7 +280,7 @@ public class ProblemaPHubRAllocationMedio {
 		boolean haCambiado= false;
 		for(int i=0; i< getNucleos().size(); i++) {
 			Vector<Punto> puntosActuales= new Vector<Punto>();
-			puntosActuales= deepCopy(getPuntos());
+			puntosActuales= deepCopyVPuntos(getPuntos());
 			Vector<Integer> nucleosActuales= new Vector<Integer>();
 			nucleosActuales= deepCopy2(getNucleos());
 			for(int punt=0; punt< getPuntos().size(); punt++) {
@@ -310,7 +310,7 @@ public class ProblemaPHubRAllocationMedio {
 	public void busquedaLocalAnsiosa() {	
 		for(int i=0; i< getNucleos().size(); i++) {
 			Vector<Punto> puntosActuales= new Vector<Punto>();
-			puntosActuales= deepCopy(getPuntos());	
+			puntosActuales= deepCopyVPuntos(getPuntos());	
 			Vector<Integer> nucleosActuales= new Vector<Integer>();
 			nucleosActuales= deepCopy2(getNucleos());
 
@@ -349,7 +349,7 @@ public class ProblemaPHubRAllocationMedio {
 		}
 	}
 	
-	static public Vector<Punto> deepCopy(Vector<Punto> oldObj) {
+	static public Vector<Punto> deepCopyVPuntos(Vector<Punto> oldObj) {
 		Vector<Punto> nuevoVector= new Vector<Punto>();
 		for(Punto punto: oldObj) {
 			Punto nuevoPunto= new Punto(punto.getCordX(), punto.getCordY(), false);
@@ -376,7 +376,7 @@ public class ProblemaPHubRAllocationMedio {
  		
  		//GRASP:
  		System.out.println("Solución GRASP: ");
- 		puntosProblema= deepCopy(ProblemaInicial.getPuntos());
+ 		puntosProblema= deepCopyVPuntos(ProblemaInicial.getPuntos());
  		ProblemaPHubRAllocationMedio GRASP= new ProblemaPHubRAllocationMedio(puntosProblema, new Vector<Integer>(), ProblemaInicial.getrDistribuciones(), ProblemaInicial.getpNucleos(), ProblemaInicial.getnPuntos());
  		GRASP.resolverInstanciaGrasp();
 		System.out.println(GRASP.resolverInstancia());
