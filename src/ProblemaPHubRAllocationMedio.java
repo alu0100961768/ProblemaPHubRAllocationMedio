@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**Programa que pretende permitir resolver el problema p-hub r-allocation aplicando diferentes algoritmos constructivos y búsquedas por entornos.
+ * Tambien implementa la solucion GRASP.
  * @author Germán Alfonso Teixidó - alu0100961768
  */
 public class ProblemaPHubRAllocationMedio {
@@ -36,6 +37,8 @@ public class ProblemaPHubRAllocationMedio {
 	 * @param r (Distribuciones) Número de nucleos a los que un nodo puede conectarse en el problema.
 	 * @param p (Núcleos) Numero de nodos del problema que serán considerados huds/nucleos/nexos/etc.
 	 * @param n (Número de puntos) Numero de puntos que contiene el problema.
+	 * @param puntos Contiene la lista de puntos del problema.
+	 * @param nucleos Contiene los indexs de los puntos que son nucleos en puntos.
 	 */
 	public ProblemaPHubRAllocationMedio(Vector<Punto> puntos, Vector<Integer> nucleos, int r, int p, int n) {
 		this.puntos= puntos;
@@ -45,6 +48,11 @@ public class ProblemaPHubRAllocationMedio {
 		this.nPuntos= n;
 	}
 	
+	/** Constructor de la clase ProblemaPHubRAllocationMedio. 
+	 * @param r (Distribuciones) Número de nucleos a los que un nodo puede conectarse en el problema.
+	 * @param p (Núcleos) Numero de nodos del problema que serán considerados huds/nucleos/nexos/etc.
+	 * @param n (Número de puntos) Numero de puntos que contiene el problema.
+	 */
 	public ProblemaPHubRAllocationMedio(int r, int p, int n) {
 		this.puntos= new Vector<Punto>();
 		this.nucleos= new Vector<Integer>();	
@@ -214,7 +222,7 @@ public class ProblemaPHubRAllocationMedio {
 
 	/** Resuelve la instancia actual aplicandole GRASP.
 	 */
-	public void resolverInstanciaEntradaGrasp() {
+	public void resolverInstanciaGrasp() {
 		// Creamos todos los puntos del problema y los distribuimos sobre un grid cuadrada de tamaño 0 a 100. 
 //		for(int i= 0; i< this.getnPuntos(); i++) {							//Los puntos que generemos estarán entre las coordenadas x/y [0-100]
 //			Punto aux= new Punto(ThreadLocalRandom.current().nextInt(0, 100+ 1), ThreadLocalRandom.current().nextInt(0, 100+ 1), false);
@@ -231,15 +239,8 @@ public class ProblemaPHubRAllocationMedio {
 		}
 		busquedaLocalGreed();
 	}
-	
-	public void resolverInstanciaEntradaTest() {
-		for(int i=0; i<getpNucleos(); i++) {
-			generarNuevoHubGrasp();
-		}
-	}
-	
-	
-	/**Siguiendo el proceso de inicialización de GRASP, genera un hub de forma pseudo-aleatoria entre las 3 mejores hubs que podrían incorporarse a la actual instancia.
+
+	/** Siguiendo el proceso de inicialización de GRASP, genera un hub de forma pseudo-aleatoria entre las 3 mejores hubs que podrían incorporarse a la actual instancia.
 	 */
 	public void generarNuevoHubGrasp(){
 		
@@ -269,11 +270,11 @@ public class ProblemaPHubRAllocationMedio {
 		}
 		sort(costePosiblesNucleos, posiblesNucleos);
 		int r= ThreadLocalRandom.current().nextInt(0, 2+ 1);
-		getNucleos().add(posiblesNucleos.get(0));
+		getNucleos().add(posiblesNucleos.get(r));
 		asignarNucleos();
 	}
 	
-	/**Encuentra la solución optima local de la instancia. Algoritmo greed.
+	/** Encuentra la solución optima local de la instancia. Algoritmo greed.
 	 */
 	public void busquedaLocalGreed() {	
 		boolean haCambiado= false;
@@ -304,7 +305,7 @@ public class ProblemaPHubRAllocationMedio {
 		}
 	}
 	
-	/**Encuentra la solución optima local de la instancia. Algoritmo ansioso.
+	/** Encuentra la solución optima local de la instancia. Algoritmo ansioso.
 	 */
 	public void busquedaLocalAnsiosa() {	
 		for(int i=0; i< getNucleos().size(); i++) {
@@ -330,8 +331,6 @@ public class ProblemaPHubRAllocationMedio {
 		}
 	}
 	
-	
-	
 	/** Generamos un problema a partir de los nPuntos asignados. <p>
 	 *  El problema se representará en un vector de puntos "<b>puntos</b>", que almacenará los diferentes puntos (nodos) a unir.<br>
 	 *  Los puntos contienen su coordenada X, su coordenada Y, y si son o no núcleos.<br>
@@ -350,8 +349,6 @@ public class ProblemaPHubRAllocationMedio {
 		}
 	}
 	
-	
-	
 	static public Vector<Punto> deepCopy(Vector<Punto> oldObj) {
 		Vector<Punto> nuevoVector= new Vector<Punto>();
 		for(Punto punto: oldObj) {
@@ -369,30 +366,75 @@ public class ProblemaPHubRAllocationMedio {
 		}
 		return nuevoVector;
 	}
-	
-	
-	
-	
+		
  	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-//		ProblemaPHubRAllocationMedio PHRA= new ProblemaPHubRAllocationMedio();
-//		PHRA.generarProblemaAleatorio();
-//		PHRA.generarNucleosAleatorios();
-//		System.out.println(PHRA.resolverInstancia());
-//		System.out.println("----------------------------");
-		
- 		ProblemaPHubRAllocationMedio PHRA= new ProblemaPHubRAllocationMedio();
- 		PHRA.generarProblemaAleatorio();
- 		PHRA.resolverInstanciaEntradaTest();
- 		System.out.println(PHRA.resolverInstancia());
- 		System.out.println("----------------------------");
+ 		//Problema simple
+ 		ProblemaPHubRAllocationMedio ProblemaInicial= new ProblemaPHubRAllocationMedio();		//Genera un problema aleatorio
+ 		ProblemaInicial.generarProblemaAleatorio();												//Genera los puntos del problema, sin asignar hubs (de eso se encargan lo algoritoms de resolución)
+ 		Vector<Punto> puntosProblema;
+ 		//ProblemaPHubRAllocationMedio(Vector<Punto> puntos, Vector<Integer> nucleos, int r, int p, int n)
  		
- 		//(Vector<Punto> puntos, Vector<Integer> nucleos, int r, int p, int n)
-		ProblemaPHubRAllocationMedio GRASP= new ProblemaPHubRAllocationMedio(PHRA.getPuntos(), new Vector<Integer>(), PHRA.getrDistribuciones(), PHRA.getpNucleos(), PHRA.getnPuntos());
-		GRASP.resolverInstanciaEntradaGrasp();
-		System.out.print(GRASP.resolverInstancia());
-//		
+ 		//GRASP:
+ 		System.out.println("Solución GRASP: ");
+ 		puntosProblema= deepCopy(ProblemaInicial.getPuntos());
+ 		ProblemaPHubRAllocationMedio GRASP= new ProblemaPHubRAllocationMedio(puntosProblema, new Vector<Integer>(), ProblemaInicial.getrDistribuciones(), ProblemaInicial.getpNucleos(), ProblemaInicial.getnPuntos());
+ 		GRASP.resolverInstanciaGrasp();
+		System.out.println(GRASP.resolverInstancia());
 		
+//		//Multiarranque:
+//		System.out.println("Solución Multiarranque: ");
+// 		puntosProblema= deepCopy(ProblemaInicial.getPuntos());
+// 		ProblemaPHubRAllocationMedio MultiArranque= new ProblemaPHubRAllocationMedio(puntosProblema, new Vector<Integer>(), ProblemaInicial.getrDistribuciones(), ProblemaInicial.getpNucleos(), ProblemaInicial.getnPuntos());
+// 		MultiArranque.resolverInstanciaMultiarranque();
 	}
 
 }
+
+
+
+/*
+ * LEGADO:
+ * 
+//////////////////////////////////////////////////////
+ * //MULTIARRANQUE
+//////////////////////////////////////////////////////
+
+	//Esto no debería ser una duncion del objeto problema, debería estar en otro archivo o ser su propio main, pero lo hago aqui para trabajar con todo en el mismo archivo. Luego lo "vuelvo bonito".
+//	public void resolverInstanciaMultiarranque() {
+//		
+//		Vector<Punto> puntosActuales= new Vector<Punto>();
+//		puntosActuales= deepCopy(getPuntos());	
+//		
+//		ProblemaPHubRAllocationMedio solucionOptima= new ProblemaPHubRAllocationMedio(puntosActuales, new Vector<Integer>(), getrDistribuciones(), getpNucleos(), getnPuntos());
+//		solucionOptima.resolverInstanciaGrasp();
+//		int iteracion= 0;
+//		int iteracionSinCambios= 0;
+//		
+//		boolean condicionDeParada= false;
+//		
+//		while(!condicionDeParada) {
+//			
+//			Vector<Punto> puntosActual= new Vector<Punto>();
+//			puntosActual= deepCopy(getPuntos());	
+//			
+//			ProblemaPHubRAllocationMedio solucionActual= new ProblemaPHubRAllocationMedio(puntosActual, new Vector<Integer>(), getrDistribuciones(), getpNucleos(), getnPuntos());
+//			solucionActual.resolverInstanciaGrasp();
+//
+//			if(solucionActual.resolverInstancia() < solucionOptima.resolverInstancia()) {
+//				solucionOptima= solucionActual;
+//			}
+//			else {
+//				iteracionSinCambios++;
+//			}
+//			iteracion++;
+//			if(iteracion> getnPuntos() && iteracionSinCambios> getnPuntos()/getpNucleos()) {
+//				condicionDeParada=true;
+//			}
+//			//condicionDeParada=true;
+//		}
+//		System.out.println(solucionOptima.resolverInstancia());
+//	} 
+
+ * 
+ * 
+ */
