@@ -15,7 +15,7 @@ public class Punto {
 		this.nucleosAsignados= new Vector<Integer>();
 	}
 	
-	public Punto(int cordX, int cordY, boolean esPuente) {
+	public Punto(float cordX, float cordY, boolean esPuente) {
 		setCordX(cordX);
 		setCordY(cordY);
 		setEsNucleo(esPuente);

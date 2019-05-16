@@ -1,3 +1,7 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -84,7 +88,7 @@ public class ProblemaPHubRAllocationMedio {
 	// Funciones de la clase:
 	
 	/**Comprueba si el paramentro "punto" existe en el Vector de Punto "puntos" de la clase ProblemaPHubRAllocationMedio.
-	 * Funciona como un subsituto de puntos.contains(), pero que comprueba que un obejto similar exista o no en el vector (fijandose únicamente en las coordenadas x e y de los puntos), aunque no sea la misma
+	 * Funciona como un subsituto de puntos.contains(), pero que comprueba si un obejto similar existe o no en el vector (fijandose únicamente en las coordenadas x e y de los puntos), aunque no sea el objeto exacto en cuestion.
 	 * @param punto Punto a buscar en "<b>puntos</b>".
 	 * @return <b>true</b> en caso de que "punto" exista en "puntos", <b>false</b> en caso contrario.
 	 */
@@ -96,24 +100,11 @@ public class ProblemaPHubRAllocationMedio {
 		return false;
 	}
 	
-	/** Generamos el problema a partir de las rDistribuciones, pNucleos y nPuntos asignados. <p>
-	 *  El problema se representará en un vector de puntos "<b>puntos</b>", que almacenará los diferentes puntos (nodos) a unir.<br>
-	 *  Los puntos contienen su coordenada X, su coordenada Y, y si son o no núcleos.<br>
-	 *  El vector de Integers "<b>nucleos</b>" contiene una lista de posiciones de "<b>puntos</b>" con la dirección de cada núcleo dentro de <b>puntos</b>.
-	 *  Usando esta función, generaremos p Núcleos aleatorios. 
+	/** Usando esta función, generamos p Núcleos aleatorios y asignamos a cada punto sus núcleos correspondientes.
+	 *  Debemos tener una instancia del problema para que funcione.
 	 */
-	public void generarProblemaAleatorio() {
-		// Creamos todos los puntos del problema y los distribuimos sobre un grid cuadrada de tamaño 0 a 100. 
-		for(int i= 0; i< this.getnPuntos(); i++) {							//Los puntos que generemos estarán entre las coordenadas x/y [0-100]
-			Punto aux= new Punto(ThreadLocalRandom.current().nextInt(0, 100+ 1), ThreadLocalRandom.current().nextInt(0, 100+ 1), false);
-			if(puntosContiene(aux)) {
-				i--;
-			}
-			else {
-				getPuntos().add(aux);
-			}
-		}
-		// Asignamos p nucleos aleatorios a nuestros puntos.
+	public void generarNucleosAleatorios() {
+		// Asignamos p núcleos aleatorios a nuestros puntos.
 		for(int i= 0; i< this.getpNucleos(); i++) {							
 			int aux= ThreadLocalRandom.current().nextInt(0, getnPuntos());
 			if(getNucleos().contains(aux)) {
@@ -127,14 +118,12 @@ public class ProblemaPHubRAllocationMedio {
 		asignarNucleos();
 	}
 	
-	/**Método auxiliar de la función <b>generateProblem()</b>.
-	 * Dado el problema actual, asigna los nodos correspondientes a cada punto.
-	 * @return
+	/** Dado el problema actual, asigna los nodos correspondientes a cada punto.
 	 */
 	private void asignarNucleos() {
 		
 		for (Punto puntoi : getPuntos()) {
-			puntoi.setNucleosAsignados(new Vector<Integer>());		//Nos aseguramos de que cada punto no tenga asignado ningun Núcleo.
+			puntoi.setNucleosAsignados(new Vector<Integer>());		//Nos aseguramos de que cada punto no tenga asignado ningun Núcleo de antemano.
 			Vector<Float> minimosValue= new Vector<Float>();		//Caclucalmos la distancia de cada punto a cada posible nodo.
 			Vector<Integer> minimosIndex= new Vector<Integer>();
 			for (Integer nodeIndex : getNucleos()) {
@@ -155,10 +144,10 @@ public class ProblemaPHubRAllocationMedio {
 		}
 	}
 	
-	/**Método auxiliar de la función <b>asignarNucleos()</b> que ordenará 2 vectores:
-	 * @param minimosValue Contiene la distancia de los nodos al punto
-	 * @param minimosIndex Contiene a que nodo corresponde cada distancia<p>
-	 * El método ordenará ambos vectores aplicando insertion sort a <b>minimosValue</b> y cambiando los valores de  <b>minimosIndex</b> de la misma forma que cambia los valores de <b>minimosValue</b>.
+	/** Método auxiliar que se encarga de ordenar 2 vectores:
+	 *  @param minimosValue Contiene la distancia de los nodos al punto
+	 *  @param minimosIndex Contiene a que nodo corresponde cada distancia<p>
+	 *  El método ordenará ambos vectores aplicando insertion sort a <b>minimosValue</b> y cambiando los valores de  <b>minimosIndex</b> de la misma forma que cambia los valores de <b>minimosValue</b>.
 	 */
 	private void sort(Vector<Float> minimosValue, Vector<Integer> minimosIndex) {
 		int n= minimosValue.size();
@@ -223,26 +212,30 @@ public class ProblemaPHubRAllocationMedio {
 		return media;
 	}
 
-	/**Genera un problema y le aplica GRASP al mismo.
+	/** Resuelve la instancia actual aplicandole GRASP.
 	 */
-	public void generarInstanciaEntradaGrasp() {
+	public void resolverInstanciaEntradaGrasp() {
 		// Creamos todos los puntos del problema y los distribuimos sobre un grid cuadrada de tamaño 0 a 100. 
-		for(int i= 0; i< this.getnPuntos(); i++) {							//Los puntos que generemos estarán entre las coordenadas x/y [0-100]
-			Punto aux= new Punto(ThreadLocalRandom.current().nextInt(0, 100+ 1), ThreadLocalRandom.current().nextInt(0, 100+ 1), false);
-			if(puntosContiene(aux)) {
-				i--;
-			}
-			else {
-				getPuntos().add(aux);
-			}
-		}
+//		for(int i= 0; i< this.getnPuntos(); i++) {							//Los puntos que generemos estarán entre las coordenadas x/y [0-100]
+//			Punto aux= new Punto(ThreadLocalRandom.current().nextInt(0, 100+ 1), ThreadLocalRandom.current().nextInt(0, 100+ 1), false);
+//			if(puntosContiene(aux)) {
+//				i--;
+//			}
+//			else {
+//				getPuntos().add(aux);
+//			}
+//		}
 		
 		for(int i=0; i<getpNucleos(); i++) {
 			generarNuevoHubGrasp();
 		}
-		
-		// TODO: Búsqueda local.
-		
+		busquedaLocalGreed();
+	}
+	
+	public void resolverInstanciaEntradaTest() {
+		for(int i=0; i<getpNucleos(); i++) {
+			generarNuevoHubGrasp();
+		}
 	}
 	
 	
@@ -257,10 +250,10 @@ public class ProblemaPHubRAllocationMedio {
 			if(!getPuntos().get(i).isEsNucleo()) {								// Que no sea ya un nucleo
 				
 				Vector<Punto> puntosActuales= new Vector<Punto>();
-				puntosActuales.addAll(getPuntos());
+				puntosActuales= deepCopy(getPuntos());
 				
 				Vector<Integer> nucleosActuales= new Vector<Integer>();
-				nucleosActuales.addAll(getNucleos());
+				nucleosActuales= deepCopy2(getNucleos());
 				
 				nucleosActuales.add(i);
 				
@@ -276,29 +269,127 @@ public class ProblemaPHubRAllocationMedio {
 		}
 		sort(costePosiblesNucleos, posiblesNucleos);
 		int r= ThreadLocalRandom.current().nextInt(0, 2+ 1);
-		getNucleos().add(posiblesNucleos.get(r));
+		getNucleos().add(posiblesNucleos.get(0));
 		asignarNucleos();
 	}
 	
-	
-	public void busquedaLocal() {
-		
-		
+	/**Encuentra la solución optima local de la instancia. Algoritmo greed.
+	 */
+	public void busquedaLocalGreed() {	
+		boolean haCambiado= false;
+		for(int i=0; i< getNucleos().size(); i++) {
+			Vector<Punto> puntosActuales= new Vector<Punto>();
+			puntosActuales= deepCopy(getPuntos());
+			Vector<Integer> nucleosActuales= new Vector<Integer>();
+			nucleosActuales= deepCopy2(getNucleos());
+			for(int punt=0; punt< getPuntos().size(); punt++) {
+				//System.out.println("test");
+				if(getPuntos().equals(puntosActuales))
+					System.out.println("OH NO");
+				
+				nucleosActuales.set(i, punt);
+				ProblemaPHubRAllocationMedio Subproblema= new ProblemaPHubRAllocationMedio(puntosActuales, nucleosActuales, getrDistribuciones(), getpNucleos(), getnPuntos());
+				Subproblema.asignarNucleos();
+				
+				if(Subproblema.resolverInstancia()< resolverInstancia()) {
+					getNucleos().set(i, punt);
+					asignarNucleos();
+					haCambiado= true;
+				}
+			}
+
+			if(i+1< getNucleos().size() && haCambiado) {
+				busquedaLocalGreed();
+			}
+		}
 	}
 	
+	/**Encuentra la solución optima local de la instancia. Algoritmo ansioso.
+	 */
+	public void busquedaLocalAnsiosa() {	
+		for(int i=0; i< getNucleos().size(); i++) {
+			Vector<Punto> puntosActuales= new Vector<Punto>();
+			puntosActuales= deepCopy(getPuntos());	
+			Vector<Integer> nucleosActuales= new Vector<Integer>();
+			nucleosActuales= deepCopy2(getNucleos());
+
+			for(int punt=0; punt< getPuntos().size(); punt++) {
+				//System.out.println("test");
+				if(getPuntos().equals(puntosActuales))
+					System.out.println("OH NO");
+				
+				nucleosActuales.set(i, punt);
+				ProblemaPHubRAllocationMedio Subproblema= new ProblemaPHubRAllocationMedio(puntosActuales, nucleosActuales, getrDistribuciones(), getpNucleos(), getnPuntos());
+				Subproblema.asignarNucleos();
+				
+				if(Subproblema.resolverInstancia()< resolverInstancia()) {
+					getNucleos().set(i, punt);
+					asignarNucleos();
+				}
+			}
+		}
+	}
+	
+	
+	
+	/** Generamos un problema a partir de los nPuntos asignados. <p>
+	 *  El problema se representará en un vector de puntos "<b>puntos</b>", que almacenará los diferentes puntos (nodos) a unir.<br>
+	 *  Los puntos contienen su coordenada X, su coordenada Y, y si son o no núcleos.<br>
+	 *  El vector de Integers "<b>nucleos</b>" contiene una lista de posiciones de "<b>puntos</b>" con la dirección de cada núcleo dentro de <b>puntos</b>.
+	 */
+	public void generarProblemaAleatorio() {
+		// Creamos todos los puntos del problema y los distribuimos sobre un grid cuadrada de tamaño 0 a 100. 
+		for(int i= 0; i< this.getnPuntos(); i++) {							//Los puntos que generemos estarán entre las coordenadas x/y [0-100]
+			Punto aux= new Punto(ThreadLocalRandom.current().nextInt(0, 100+ 1), ThreadLocalRandom.current().nextInt(0, 100+ 1), false);
+			if(puntosContiene(aux)) {
+				i--;
+			}
+			else {
+				getPuntos().add(aux);
+			}
+		}
+	}
+	
+	
+	
+	static public Vector<Punto> deepCopy(Vector<Punto> oldObj) {
+		Vector<Punto> nuevoVector= new Vector<Punto>();
+		for(Punto punto: oldObj) {
+			Punto nuevoPunto= new Punto(punto.getCordX(), punto.getCordY(), false);
+			nuevoVector.add(nuevoPunto);
+		}
+		return nuevoVector;
+	}
+	
+	static public Vector<Integer> deepCopy2(Vector<Integer> oldObj) {
+		Vector<Integer> nuevoVector= new Vector<Integer>();
+		for(Integer inte: oldObj) {
+			Integer nuevoInt= inte;
+			nuevoVector.add(nuevoInt);
+		}
+		return nuevoVector;
+	}
 	
 	
 	
 	
  	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ProblemaPHubRAllocationMedio PHRA= new ProblemaPHubRAllocationMedio();
-		PHRA.generarProblemaAleatorio();
-		System.out.println(PHRA.resolverInstancia());
-		System.out.println("----------------------------");
+//		ProblemaPHubRAllocationMedio PHRA= new ProblemaPHubRAllocationMedio();
+//		PHRA.generarProblemaAleatorio();
+//		PHRA.generarNucleosAleatorios();
+//		System.out.println(PHRA.resolverInstancia());
+//		System.out.println("----------------------------");
 		
-		ProblemaPHubRAllocationMedio GRASP= new ProblemaPHubRAllocationMedio();
-		GRASP.generarInstanciaEntradaGrasp();
+ 		ProblemaPHubRAllocationMedio PHRA= new ProblemaPHubRAllocationMedio();
+ 		PHRA.generarProblemaAleatorio();
+ 		PHRA.resolverInstanciaEntradaTest();
+ 		System.out.println(PHRA.resolverInstancia());
+ 		System.out.println("----------------------------");
+ 		
+ 		//(Vector<Punto> puntos, Vector<Integer> nucleos, int r, int p, int n)
+		ProblemaPHubRAllocationMedio GRASP= new ProblemaPHubRAllocationMedio(PHRA.getPuntos(), new Vector<Integer>(), PHRA.getrDistribuciones(), PHRA.getpNucleos(), PHRA.getnPuntos());
+		GRASP.resolverInstanciaEntradaGrasp();
 		System.out.print(GRASP.resolverInstancia());
 //		
 		
