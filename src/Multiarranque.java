@@ -34,13 +34,19 @@ public class Multiarranque {
 			solucionActual.resolverInstanciaGrasp();
 
 			if(solucionActual.resolverInstancia() < solucionOptima.resolverInstancia()) {
-				solucionOptima= solucionActual;
+				//solucionOptima= solucionActual;
+				Vector<Punto> puntosActualAux= solucionActual.deepCopyVPuntos(solucionActual.getPuntos());
+				Vector<Integer> nucleosActualAux= solucionActual.deepCopyVNucleos(solucionActual.getNucleos());
+				
+				solucionOptima= new ProblemaPHubRAllocationMedio(puntosActualAux, nucleosActualAux, problemaOriginal.getrDistribuciones(), problemaOriginal.getpNucleos(), problemaOriginal.getnPuntos());
+				solucionOptima.asignarNucleos();
 			}
 			else {
 				iteracionSinCambios++;
 			}
 			iteracion++;
-			if(iteracion> problemaOriginal.getnPuntos() && iteracionSinCambios> problemaOriginal.getnPuntos()/problemaOriginal.getpNucleos()) {
+			//System.out.println(iteracion + " - Sin cambios: " + iteracionSinCambios);
+			if(iteracion> problemaOriginal.getnPuntos() || iteracionSinCambios> problemaOriginal.getnPuntos()/problemaOriginal.getpNucleos()) {
 				condicionDeParada=true;
 			}
 		}

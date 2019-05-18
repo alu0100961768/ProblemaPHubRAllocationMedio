@@ -128,7 +128,7 @@ public class ProblemaPHubRAllocationMedio {
 	
 	/** Dado el problema actual, asigna los nodos correspondientes a cada punto.
 	 */
-	private void asignarNucleos() {
+	public void asignarNucleos() {
 		
 		for (Punto puntoi : getPuntos()) {
 			puntoi.setNucleosAsignados(new Vector<Integer>());		//Nos aseguramos de que cada punto no tenga asignado ningun Núcleo de antemano.
@@ -254,7 +254,7 @@ public class ProblemaPHubRAllocationMedio {
 				puntosActuales= deepCopyVPuntos(getPuntos());
 				
 				Vector<Integer> nucleosActuales= new Vector<Integer>();
-				nucleosActuales= deepCopy2(getNucleos());
+				nucleosActuales= deepCopyVNucleos(getNucleos());
 				
 				nucleosActuales.add(i);
 				
@@ -282,12 +282,8 @@ public class ProblemaPHubRAllocationMedio {
 			Vector<Punto> puntosActuales= new Vector<Punto>();
 			puntosActuales= deepCopyVPuntos(getPuntos());
 			Vector<Integer> nucleosActuales= new Vector<Integer>();
-			nucleosActuales= deepCopy2(getNucleos());
+			nucleosActuales= deepCopyVNucleos(getNucleos());
 			for(int punt=0; punt< getPuntos().size(); punt++) {
-				//System.out.println("test");
-				if(getPuntos().equals(puntosActuales))
-					System.out.println("OH NO");
-				
 				nucleosActuales.set(i, punt);
 				ProblemaPHubRAllocationMedio Subproblema= new ProblemaPHubRAllocationMedio(puntosActuales, nucleosActuales, getrDistribuciones(), getpNucleos(), getnPuntos());
 				Subproblema.asignarNucleos();
@@ -312,7 +308,7 @@ public class ProblemaPHubRAllocationMedio {
 			Vector<Punto> puntosActuales= new Vector<Punto>();
 			puntosActuales= deepCopyVPuntos(getPuntos());	
 			Vector<Integer> nucleosActuales= new Vector<Integer>();
-			nucleosActuales= deepCopy2(getNucleos());
+			nucleosActuales= deepCopyVNucleos(getNucleos());
 
 			for(int punt=0; punt< getPuntos().size(); punt++) {
 				//System.out.println("test");
@@ -358,7 +354,7 @@ public class ProblemaPHubRAllocationMedio {
 		return nuevoVector;
 	}
 	
-	static public Vector<Integer> deepCopy2(Vector<Integer> oldObj) {
+	static public Vector<Integer> deepCopyVNucleos(Vector<Integer> oldObj) {
 		Vector<Integer> nuevoVector= new Vector<Integer>();
 		for(Integer inte: oldObj) {
 			Integer nuevoInt= inte;
@@ -366,7 +362,99 @@ public class ProblemaPHubRAllocationMedio {
 		}
 		return nuevoVector;
 	}
+	
+	public void localTabu(MatrizTabu tabu) {
 		
+		boolean haCambiado= false;
+		for(int i=0; i< getNucleos().size(); i++) {
+			Vector<Punto> puntosActuales= new Vector<Punto>();
+			puntosActuales= deepCopyVPuntos(getPuntos());
+			Vector<Integer> nucleosActuales= new Vector<Integer>();
+			nucleosActuales= deepCopyVNucleos(getNucleos());
+			for(int punt=0; punt< getPuntos().size(); punt++) {
+				if(tabu.isLocked(i, punt))
+					continue;
+				
+				nucleosActuales.set(i, punt);
+				ProblemaPHubRAllocationMedio Subproblema= new ProblemaPHubRAllocationMedio(puntosActuales, nucleosActuales, getrDistribuciones(), getpNucleos(), getnPuntos());
+				Subproblema.asignarNucleos();
+				
+				if(Subproblema.resolverInstancia()< resolverInstancia()) {
+					getNucleos().set(i, punt);
+					asignarNucleos();
+					haCambiado= true;
+				}
+			}
+
+			if(i+1< getNucleos().size() && haCambiado) {
+				localTabu(tabu);
+			}
+		}
+		
+		
+		
+		
+		
+//		boolean haCambiado= false;
+//		for(int i=0; i< getNucleos().size(); i++) {
+//			Vector<Punto> puntosActuales= new Vector<Punto>();
+//			puntosActuales= deepCopyVPuntos(getPuntos());
+//			Vector<Integer> nucleosActuales= new Vector<Integer>();
+//			nucleosActuales= deepCopyVNucleos(getNucleos());
+//			for(int punt=0; punt< getPuntos().size(); punt++) {
+//				if(tabu.isLocked(i, punt))
+//					continue;
+//				
+//				nucleosActuales.set(i, punt);
+//				ProblemaPHubRAllocationMedio Subproblema= new ProblemaPHubRAllocationMedio(puntosActuales, nucleosActuales, getrDistribuciones(), getpNucleos(), getnPuntos());
+//				Subproblema.asignarNucleos();
+//				
+//				if(soloMejorSolucion) {
+//					if(Subproblema.resolverInstancia()< resolverInstancia()) {
+//						getNucleos().set(i, punt);
+//						asignarNucleos();
+//						haCambiado= true;
+//						tabu.introducirElemento(i, punt);
+//					}
+//					else {
+//						tabu.iterarNucleo(i);
+//					}
+//				}
+//				else {
+//					
+//					
+//					
+//					
+//					
+//	
+//				}
+//			}
+//			if(i+1< getNucleos().size() && haCambiado && iteracionActual< getnPuntos()/4) {
+//				localTabu(tabu, soloMejorSolucion, iteracionActual);
+//			}	
+//		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	static ProblemaPHubRAllocationMedio copiarProblema(ProblemaPHubRAllocationMedio problemaACopiar) {
+		
+		Vector<Punto> puntosActuales= new Vector<Punto>();
+		puntosActuales= problemaACopiar.deepCopyVPuntos(problemaACopiar.getPuntos());
+		Vector<Integer> nucleosActuales= new Vector<Integer>();
+		nucleosActuales= problemaACopiar.deepCopyVNucleos(problemaACopiar.getNucleos());
+		
+		return new ProblemaPHubRAllocationMedio(puntosActuales, nucleosActuales, problemaACopiar.getrDistribuciones(), problemaACopiar.getpNucleos(), problemaACopiar.getnPuntos());
+		
+	}
+	
+	
+	
  	public static void main(String[] args) {
  		//Problema simple
  		ProblemaPHubRAllocationMedio ProblemaInicial= new ProblemaPHubRAllocationMedio();		//Genera un problema aleatorio
